@@ -1,13 +1,16 @@
 package me.daniil148852.gravitygauntlet;
 
 import me.daniil148852.gravitygauntlet.OrbitingFallingBlock;
+import me.daniil148852.gravitygauntlet.mixin.FallingBlockEntityAccessor;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
@@ -37,21 +40,32 @@ public class GravityGauntletItem extends Item {
 	}
 
 	@Override
-	public TypedActionResult<ItemStack> useOnBlock(ItemStack stack, PlayerEntity user, Hand hand, BlockHitResult hitResult) {
-		if (!user.isSneaking()) {
-			World world = user.getWorld();
-			BlockPos pos = hitResult.getBlockPos();
-			BlockState state = world.getBlockState(pos);
+	public ActionResult useOnBlock(ItemUsageContext context) {
+		PlayerEntity user = context.getPlayer();
+		if (user == null || user.isSneaking()) {
+			return ActionResult.PASS;
+		}
 
-			if (!state.isAir() && state.getBlock() != Blocks.BEDROCK) {
-				world.removeBlock(pos, false);
+		World world = context.getWorld();
+		BlockPos pos = context.getBlockPos();
+		BlockState state = world.getBlockState(pos);
 
-				FallingBlockEntity fallingBlock = new FallingBlockEntity(world,
-					pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, state);
-				fallingBlock.setNoGravity(true);
-				fallingBlock.dropItem = false;
-				fallingBlock.hurtEntities = true;
-				fallingBlock.fallDistance = 8.0f;
+		if (!state.isAir() && state.getBlock() != Blocks.BEDROCK) {
+			world.removeBlock(pos, false);
+
+			FallingBlockEntity fallingBlock = FallingBlockEntityAccessor.createFallingBlockEntity(
+				world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, state
+			);
+			fallingBlock.setNoGravity(true);
+			fallingBlock.dropItem = false;
+			FallingBlockEntityAccessor accessor = (FallingBlockEntityAccessor) fallingBlock;
+			accessor.setHurtEntities(true);
+			fallingBlock.fallDistance = 8.0f;
+
+			NbtCompound nbt = fallingBlock.getOrCreateNbt();
+			nbt.putUuid("Owner", user.getUuid());
+			nbt.putDouble("Angle", Math.random() * Math.PI * 2);
+			nbt.putBoolean("IsOrbiting", true);
 
 			world.spawnEntity(fallingBlock);
 
@@ -65,10 +79,10 @@ public class GravityGauntletItem extends Item {
 			orbitingBlock.angle = Math.random() * Math.PI * 2;
 			ORBITING_BLOCKS.add(orbitingBlock);
 
-				return TypedActionResult.success(stack);
-			}
+			return ActionResult.SUCCESS;
 		}
-		return super.useOnBlock(stack, user, hand, hitResult);
+
+		return super.useOnBlock(context);
 	}
 
 	private void shootBlocks(PlayerEntity user) {
@@ -87,12 +101,12 @@ public class GravityGauntletItem extends Item {
 						look.z * 2.0
 					);
 					entity.velocityModified = true;
-					entity.hurtEntities = true;
+					FallingBlockEntityAccessor accessor = (FallingBlockEntityAccessor) entity;
+					accessor.setHurtEntities(true);
 					entity.fallDistance = 15.0f;
 
-					NbtCompound nbt = new NbtCompound();
+					NbtCompound nbt = entity.getOrCreateNbt();
 					nbt.putBoolean("Launched", true);
-					entity.writeCustomDataToNbt(nbt);
 				}
 				iterator.remove();
 			}

@@ -1,22 +1,17 @@
 package me.daniil148852.gravitygauntlet.mixin;
 
-import me.daniil148852.gravitygauntlet.GravityGauntletItem;
-import me.daniil148852.gravitygauntlet.GravityGauntletItem.OrbitingBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Iterator;
 import java.util.UUID;
 
 @Mixin(FallingBlockEntity.class)
@@ -27,9 +22,6 @@ public abstract class FallingBlockEntityMixin extends Entity {
 
 	public FallingBlockEntityMixin(EntityType<?> type, World world) {
 		super(type, world);
-	}
-
-	public static void initialize() {
 	}
 
 	@Inject(method = "tick", at = @At("HEAD"), cancellable = true)
@@ -78,11 +70,11 @@ public abstract class FallingBlockEntityMixin extends Entity {
 	}
 
 	@Inject(method = "onEntityCollision", at = @At("HEAD"))
-	private void gravityGauntlet$onCollision(World world, FallingBlockEntity entity, Entity other, CallbackInfo ci) {
-		if (!world.isClient && other instanceof LivingEntity target) {
-			NbtCompound nbt = entity.getNbt();
-			if (nbt != null && nbt.getBoolean("Launched")) {
-				target.damage(world.getDamageSources().fallingBlock(entity), 10.0f);
+	private void gravityGauntlet$onCollision(Entity other, CallbackInfo ci) {
+		if (!this.getWorld().isClient && other instanceof LivingEntity target) {
+			NbtCompound nbt = this.getOrCreateNbt();
+			if (nbt.getBoolean("Launched")) {
+				target.damage(this.getDamageSources().fallingBlock((FallingBlockEntity) (Object) this), 10.0f);
 			}
 		}
 	}
