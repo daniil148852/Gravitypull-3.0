@@ -29,9 +29,9 @@ jobs:
 
       - name: Build with Gradle
         run: |
-          ./gradlew clean
-          rm -rf build .gradle
-          ./gradlew build --refresh-dependencies --no-daemon
+          rm -rf build .gradle \~/.gradle/caches
+          ./gradlew clean --no-daemon
+          ./gradlew build --refresh-dependencies --no-daemon --rerun-tasks
 
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
