@@ -1,5 +1,6 @@
 package me.daniil148852.gravitygauntlet;
 
+import me.daniil148852.gravitygauntlet.extension.GravityGauntletExtension;
 import me.daniil148852.gravitygauntlet.mixin.FallingBlockEntityAccessor;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
