@@ -3,6 +3,7 @@ package me.daniil148852.gravitygauntlet.mixin;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FallingBlockEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -17,4 +18,10 @@ public interface FallingBlockEntityAccessor {
 
 	@Accessor("hurtEntities")
 	void setHurtEntities(boolean hurtEntities);
+
+	@Accessor("nbt")
+	NbtCompound getNbtData();
+
+	@Accessor("nbt")
+	void setNbtData(NbtCompound nbt);
 }

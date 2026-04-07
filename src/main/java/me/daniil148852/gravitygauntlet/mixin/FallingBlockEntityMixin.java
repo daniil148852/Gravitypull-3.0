@@ -72,8 +72,9 @@ public abstract class FallingBlockEntityMixin extends Entity {
 	@Inject(method = "onEntityCollision", at = @At("HEAD"))
 	private void gravityGauntlet$onCollision(Entity other, CallbackInfo ci) {
 		if (!this.getWorld().isClient && other instanceof LivingEntity target) {
-			NbtCompound nbt = this.getOrCreateNbt();
-			if (nbt.getBoolean("Launched")) {
+			FallingBlockEntityAccessor accessor = (FallingBlockEntityAccessor) this;
+			NbtCompound nbt = accessor.getNbtData();
+			if (nbt != null && nbt.getBoolean("Launched")) {
 				target.damage(this.getDamageSources().fallingBlock((FallingBlockEntity) (Object) this), 10.0f);
 			}
 		}

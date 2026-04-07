@@ -62,7 +62,12 @@ public class GravityGauntletItem extends Item {
 			accessor.setHurtEntities(true);
 			fallingBlock.fallDistance = 8.0f;
 
-			NbtCompound nbt = fallingBlock.getOrCreateNbt();
+			FallingBlockEntityAccessor fbAccessor = (FallingBlockEntityAccessor) fallingBlock;
+			NbtCompound nbt = fbAccessor.getNbtData();
+			if (nbt == null) {
+				nbt = new NbtCompound();
+				fbAccessor.setNbtData(nbt);
+			}
 			nbt.putUuid("Owner", user.getUuid());
 			nbt.putDouble("Angle", Math.random() * Math.PI * 2);
 			nbt.putBoolean("IsOrbiting", true);
@@ -105,7 +110,12 @@ public class GravityGauntletItem extends Item {
 					accessor.setHurtEntities(true);
 					entity.fallDistance = 15.0f;
 
-					NbtCompound nbt = entity.getOrCreateNbt();
+					FallingBlockEntityAccessor fbAccessor = (FallingBlockEntityAccessor) entity;
+					NbtCompound nbt = fbAccessor.getNbtData();
+					if (nbt == null) {
+						nbt = new NbtCompound();
+						fbAccessor.setNbtData(nbt);
+					}
 					nbt.putBoolean("Launched", true);
 				}
 				iterator.remove();
