@@ -1,4 +1,4 @@
-package me.daniil148852.gravitygauntlet;
+package me.daniil148852.gravitygauntlet.extension;
 
 import java.util.UUID;
 
