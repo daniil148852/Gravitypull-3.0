@@ -1,3 +1,12 @@
+name: Build Mod
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,7 +30,7 @@ jobs:
       - name: Build with Gradle
         run: |
           ./gradlew clean
-          rm -rf build
+          rm -rf build .gradle
           ./gradlew build --refresh-dependencies --no-daemon
 
       - name: Upload JAR artifact
